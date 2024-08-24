@@ -1,10 +1,11 @@
+const { Op } = require('sequelize');
 const Blog = require('../Model/BlogModel'); // Adjust the path to your Blog model
 const User = require('../Model/userModel');
 
 // Create a new blog
 const createBlog = async (req, res) => {
     try {
-        console.log(req.body)
+        
       const { title, content, category, userId,description,isPublic} = req.body;
       const coverImage = req.file ? req.file.path : null; // Cloudinary URL
   
@@ -34,7 +35,6 @@ const createBlog = async (req, res) => {
   const getBlogsByUserId = async (req, res) => {
     try {
         const userId = req.body.userId;
-        console.log("userId",userId)
         
         const blogs = await Blog.findAll({
             where: { userId: userId },
@@ -45,7 +45,7 @@ const createBlog = async (req, res) => {
             }]
         });
 
-        console.log("blogs", blogs);
+      
         res.status(200).json(blogs);
     } catch (error) {
         console.error('Error fetching blogs by user ID:', error);
@@ -66,7 +66,7 @@ const updateBlog = async (req, res) => {
       }
   
       
-      console.log(req.body)
+      
       const updatedBlog = await blog.update({description,title,content});
   
       res.status(200).json({ message: 'Blog updated successfully', blog: updatedBlog });
@@ -141,8 +141,10 @@ const getBlogById = async (req, res) => {
 
   const getPublicBlog= async (req, res) => {
     try {
+      
       const { userId } = req.body;
-  
+      
+    
       let whereCondition = {
         isPublic: true
       };
@@ -152,9 +154,11 @@ const getBlogById = async (req, res) => {
           [Op.ne]: userId
         };
       }
-  
+      console.log("whereId",whereCondition)
       const blogs = await Blog.findAll({
-        where: whereCondition,
+        where:{
+          ...whereCondition
+        },
         include: [{
             model: User,
             as:'user',
@@ -165,7 +169,7 @@ const getBlogById = async (req, res) => {
       if (blogs.length === 0) {
         return res.status(404).json({ message: 'No public blogs found' });
       }
-  
+
       res.status(200).json({ blogs });
     } catch (error) {
       console.log("Error:", error);
