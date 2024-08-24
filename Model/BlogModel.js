@@ -29,18 +29,14 @@ const Blog = sequelize.define('Blog', {
     },
     allowNull: false,
   },
-  category: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
   description: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-//   isPublic:{
-//     type:DataTypes.BOOLEAN,
-//     defaultValue:true,
-//   }
+  isPublic:{
+    type:DataTypes.BOOLEAN,
+    defaultValue:true,
+  }
 }, {
   timestamps: true, // Adds `createdAt` and `updatedAt` fields
 });

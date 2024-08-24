@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const { validationResult, check } = require('express-validator');
 const User = require('../Model/userModel'); // Adjust the path to your user model
 const { Op } = require('sequelize');
-
+const jwt = require('jsonwebtoken');
 // Middleware for validation
 const validateSignup = [
   // Add validation rules here
@@ -52,29 +52,51 @@ const signup = async (req, res) => {
   }
 };
 
-// remove password from response
+
+
+ 
+const JWT_SECRET = process.env.JWT_SECRET 
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if(!email||!password){
-        throw new Error({message:"email or password can't be empty"})
+    console.log(email,password);
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password can't be empty" });
     }
-    const user = await User.findOne({ where: { email } });
+
+    const user = await User.findOne({
+        where: { email },
+         // Include 'password' for comparison
+      });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    res.status(200).json({ message: 'Login successful', user });
+    
+    const token = jwt.sign(
+      { id: user.id, email: user.email }, 
+      JWT_SECRET,                         
+    );
+    const userWithoutPassword = {
+        username: user.username,
+        profilePic: user.profilePic,
+        email: user.email,
+        id:user.id
+      };
+  
+    res.status(200).json({ message: 'Login successful', token:token, user:userWithoutPassword });
   } catch (error) {
-    console.log("error",error)
+    console.log("Error:", error);
     res.status(500).json({ message: 'Server error', error });
   }
 };
+
 
 
 module.exports = { signup: [validateSignup, signup], login };

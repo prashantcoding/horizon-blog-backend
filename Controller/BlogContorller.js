@@ -5,7 +5,7 @@ const User = require('../Model/userModel');
 const createBlog = async (req, res) => {
     try {
         console.log(req.body)
-      const { title, content, category, userId,description} = req.body;
+      const { title, content, category, userId,description,isPublic} = req.body;
       const coverImage = req.file ? req.file.path : null; // Cloudinary URL
   
       // Ensure userId is provided
@@ -20,6 +20,7 @@ const createBlog = async (req, res) => {
         coverImage,
         category,
         description,
+        isPublic,
         userId, // Associate the blog with the user
       });
   
@@ -32,8 +33,8 @@ const createBlog = async (req, res) => {
 
   const getBlogsByUserId = async (req, res) => {
     try {
-        const userId = req.params.userId;
-        console.log(userId);
+        const userId = req.body.userId;
+        console.log("userId",userId)
         
         const blogs = await Blog.findAll({
             where: { userId: userId },
@@ -137,5 +138,42 @@ const getBlogById = async (req, res) => {
     }
   };
   
-  module.exports = { createBlog, updateBlog, deleteBlog, getBlogById, getBlogsByCategory,getBlogsByUserId };
+
+  const getPublicBlog= async (req, res) => {
+    try {
+      const { userId } = req.body;
+  
+      let whereCondition = {
+        isPublic: true
+      };
+  
+      if (userId) {
+        whereCondition.userId = {
+          [Op.ne]: userId
+        };
+      }
+  
+      const blogs = await Blog.findAll({
+        where: whereCondition,
+        include: [{
+            model: User,
+            as:'user',
+            attributes: ['username'] // Specify which fields you want from User
+        }]
+      });
+  
+      if (blogs.length === 0) {
+        return res.status(404).json({ message: 'No public blogs found' });
+      }
+  
+      res.status(200).json({ blogs });
+    } catch (error) {
+      console.log("Error:", error);
+      res.status(500).json({ message: 'Server error', error });
+    }
+  };
+
+
+  module.exports = { createBlog, updateBlog, deleteBlog, getBlogById, getBlogsByCategory,getBlogsByUserId,getPublicBlog};
+
 
