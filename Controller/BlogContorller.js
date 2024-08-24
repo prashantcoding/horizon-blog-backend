@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Blog = require('../Model/BlogModel'); // Adjust the path to your Blog model
 const User = require('../Model/userModel');
 
@@ -154,7 +155,9 @@ const getBlogById = async (req, res) => {
       }
   
       const blogs = await Blog.findAll({
-        where: whereCondition,
+        where: {
+          ...whereCondition
+        },
         include: [{
             model: User,
             as:'user',
