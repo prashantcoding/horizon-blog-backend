@@ -148,13 +148,13 @@ const getBlogById = async (req, res) => {
       let whereCondition = {
         isPublic: true
       };
-  
+      console.log("whereId",userId)
       if (userId) {
         whereCondition.userId = {
           [Op.ne]: userId
         };
       }
-      console.log("whereId",whereCondition)
+     
       const blogs = await Blog.findAll({
         where:{
           ...whereCondition

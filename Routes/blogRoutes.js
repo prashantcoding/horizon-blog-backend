@@ -20,7 +20,7 @@ router.get('/blogs/:id', getBlogById);
 // Route to get blogs by category
 router.get('/blogs/category/:category', getBlogsByCategory);
 router.get('/userblogs',authenticateToken,getBlogsByUserId);
-router.get('/publicblogs',getPublicBlog)
+router.post('/publicblogs',getPublicBlog)
 
 
 

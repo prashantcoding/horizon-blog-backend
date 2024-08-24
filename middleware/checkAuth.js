@@ -5,6 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key'; // Ensure this m
 const authenticateToken = (req, res, next) => {
   // Get token from headers
   const authHeader = req.headers['authorization'];
+  console.log("authHeader",authHeader);
   const token = authHeader && authHeader.split(' ')[1]; // Format: "Bearer <token>"
 
   if (token == null) return res.status(401).json({ message: 'Token is missing' });
