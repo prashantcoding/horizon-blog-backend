@@ -1,10 +1,11 @@
 const Blog = require('../Model/BlogModel'); // Adjust the path to your Blog model
+const User = require('../Model/userModel');
 
 // Create a new blog
 const createBlog = async (req, res) => {
     try {
         console.log(req.body)
-      const { title, content, category, userId } = req.body;
+      const { title, content, category, userId,description} = req.body;
       const coverImage = req.file ? req.file.path : null; // Cloudinary URL
   
       // Ensure userId is provided
@@ -18,6 +19,7 @@ const createBlog = async (req, res) => {
         content,
         coverImage,
         category,
+        description,
         userId, // Associate the blog with the user
       });
   
@@ -27,31 +29,53 @@ const createBlog = async (req, res) => {
     }
   };
 
+
+  const getBlogsByUserId = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        console.log(userId);
+        
+        const blogs = await Blog.findAll({
+            where: { userId: userId },
+            include: [{
+                model: User,
+                as:'user',
+                attributes: ['username'] // Specify which fields you want from User
+            }]
+        });
+
+        console.log("blogs", blogs);
+        res.status(200).json(blogs);
+    } catch (error) {
+        console.error('Error fetching blogs by user ID:', error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 // Update an existing blog
 const updateBlog = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, content, coverImage } = req.body;
-
-    // Find the blog by id
-    const blog = await Blog.findByPk(id);
-    if (!blog) {
-      return res.status(404).json({ message: 'Blog not found' });
+    try {
+      const { id } = req.params;
+      
+      const { title, content, description } = req.body;
+  
+      const blog = await Blog.findByPk(id);
+      if (!blog) {
+        return res.status(404).json({ message: 'Blog not found' });
+      }
+  
+      
+      console.log(req.body)
+      const updatedBlog = await blog.update({description,title,content});
+  
+      res.status(200).json({ message: 'Blog updated successfully', blog: updatedBlog });
+    } catch (error) {
+      console.log("Error:", error);
+      res.status(500).json({ message: 'Server error', error });
     }
-
-    // Update the blog entry
-    const updatedBlog = await blog.update({
-      title,
-      content,
-      coverImage,
-    });
-
-    res.status(200).json({ message: 'Blog updated successfully', blog: updatedBlog });
-  } catch (error) {
-    console.log("Error:", error);
-    res.status(500).json({ message: 'Server error', error });
-  }
-};
+  };
+  
+  
 
 // Delete a blog
 const deleteBlog = async (req, res) => {
@@ -113,5 +137,5 @@ const getBlogById = async (req, res) => {
     }
   };
   
-  module.exports = { createBlog, updateBlog, deleteBlog, getBlogById, getBlogsByCategory };
+  module.exports = { createBlog, updateBlog, deleteBlog, getBlogById, getBlogsByCategory,getBlogsByUserId };
 

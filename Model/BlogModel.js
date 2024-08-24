@@ -32,7 +32,15 @@ const Blog = sequelize.define('Blog', {
   category: {
     type: DataTypes.STRING,
     allowNull: true,
-  }
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+//   isPublic:{
+//     type:DataTypes.BOOLEAN,
+//     defaultValue:true,
+//   }
 }, {
   timestamps: true, // Adds `createdAt` and `updatedAt` fields
 });
@@ -41,6 +49,7 @@ const Blog = sequelize.define('Blog', {
 User.hasMany(Blog, {
   foreignKey: 'userId',
   as: 'blogs',
+  onDelete: 'CASCADE', // If a user is deleted, their associated blogs are also deleted
 });
 
 Blog.belongsTo(User, {
