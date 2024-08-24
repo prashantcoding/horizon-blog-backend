@@ -1,12 +1,17 @@
 const { Sequelize } = require('sequelize');
 
-
-const db=new Sequelize('horizon_db','root','',{
-    host:'localhost',
-    dialect:'mysql',
+// PostgreSQL connection setup using a Render URL
+const url=process.env.DB_URL
+const db = new Sequelize(url, {
+    dialect: 'postgres', // Set to 'postgres' for PostgreSQL
     logging: false, 
-}
-)
+    dialectOptions: {
+        ssl: {
+            require: true, // Enforce SSL connection
+            rejectUnauthorized: false // Allow self-signed certificates
+        }
+    }
+});
 
 async function authenticateDB() {
     try {
