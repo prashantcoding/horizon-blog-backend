@@ -59,16 +59,14 @@ const updateBlog = async (req, res) => {
       const { id } = req.params;
       
       const { title, content, description } = req.body;
-  
+
       const blog = await Blog.findByPk(id);
       if (!blog) {
         return res.status(404).json({ message: 'Blog not found' });
       }
-  
-      
-      
+      console.log("title",title);
       const updatedBlog = await blog.update({description,title,content});
-  
+     
       res.status(200).json({ message: 'Blog updated successfully', blog: updatedBlog });
     } catch (error) {
       console.log("Error:", error);
@@ -148,7 +146,7 @@ const getBlogById = async (req, res) => {
       let whereCondition = {
         isPublic: true
       };
-      console.log("whereId",userId)
+      
       if (userId) {
         whereCondition.userId = {
           [Op.ne]: userId
