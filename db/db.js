@@ -1,27 +1,35 @@
 require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
-// Create the Sequelize instance
-const db = new Sequelize(process.env.DB_URL, {
+// Check if we're using internal DB (on Render)
+const isInternal = process.env.USE_INTERNAL_DB === 'true';
+
+// Sequelize connection options
+const sequelizeOptions = {
   dialect: 'postgres',
   protocol: 'postgres',
-  port: 5432, // Optional: default for Postgres
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false, // Render uses self-signed certificates
-    },
-  },
-  logging: false, // Set to true if you want to see SQL queries in console
-});
+  port: 5432,
+  logging: false,
+  dialectOptions: isInternal
+    ? {} // No SSL required for internal Render network
+    : {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false, // For self-signed Render certs
+        },
+      },
+};
 
-// Test the DB connection
+// Initialize Sequelize
+const db = new Sequelize(process.env.DB_URL, sequelizeOptions);
+
+// Test connection
 (async () => {
   try {
     await db.authenticate();
-    console.log("✅ Connected to PostgreSQL!");
+    console.log('✅ Connected to PostgreSQL!');
   } catch (error) {
-    console.error("❌ DB Connection failed:", error.message);
+    console.error('❌ DB Connection failed:', error.message);
     console.error(error);
   }
 })();
