@@ -3,7 +3,11 @@ const cors=require('cors')
 const app=express();
 const helmet=require('helmet')
 require('dotenv').config()
-app.use(cors())
+app.use(cors({
+  origin: 'https://horizon-blogs-gtrt.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true // if you're using cookies or auth headers
+}));
 app.use(helmet())
 app.use(express.json())
 const db= require('./db/db')
