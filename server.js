@@ -6,14 +6,14 @@ const app = express();
 
 // ✅ CORS setup (no process.env)
 app.use(cors({
-  origin: 'https://horizon-blogs-jrbk.onrender.com', // replace with your frontend URL
+  origin: 'https://horizon-blog-backend-uznb.onrender.com', // replace with your frontend URL
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true // only use this if frontend sends cookies/auth headers
 }));
 
 // ✅ Preflight requests support
 app.options('*', cors({
-  origin: 'https://horizon-blogs-jrbk.onrender.com',
+  origin: 'https://horizon-blog-backend-uznb.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
