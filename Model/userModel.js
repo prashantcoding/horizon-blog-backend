@@ -1,37 +1,27 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../db/db'); // Adjust the path to your Sequelize instance
-const { v4: uuidv4 } = require('uuid');
+const { Sequelize } = require('sequelize');
 
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: () => uuidv4(),
-    primaryKey: true,
-  },
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  profilePic: {
-    type: DataTypes.STRING, // URL to the profile picture
-    allowNull: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  }
-}, {
-  timestamps: true, // Adds `createdAt` and `updatedAt` fields
+// PostgreSQL connection setup using a Render URL
+const url=process.env.DB_URL
+const db = new Sequelize(url, {
+    dialect: 'postgres', // Set to 'postgres' for PostgreSQL
+    logging: false, 
+    dialectOptions: {
+        ssl: {
+            require: true, // Enforce SSL connection
+            rejectUnauthorized: false // Allow self-signed certificates
+        }
+    }
 });
 
-(async () => {
-  await sequelize.sync(); // Ensure the database schema is updated
-})();
+async function authenticateDB() {
+    try {
+        await db.authenticate();
+        console.log('Connection has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+}
 
-module.exports = User;
+authenticateDB();
+
+module.exports = db;
