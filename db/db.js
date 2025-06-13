@@ -1,23 +1,21 @@
 require('dotenv').config();
 const { Sequelize } = require('sequelize');
 
-const isInternal = process.env.USE_INTERNAL_DB === 'true';
-
+// Create the Sequelize instance
 const db = new Sequelize(process.env.DB_URL, {
   dialect: 'postgres',
   protocol: 'postgres',
-  port: 5432, // optional, default for Postgres
-  dialectOptions: isInternal
-    ? {} // No SSL needed for internal DB
-    : {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      },
-  logging: false,
+  port: 5432, // Optional: default for Postgres
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, // Render uses self-signed certificates
+    },
+  },
+  logging: false, // Set to true if you want to see SQL queries in console
 });
 
+// Test the DB connection
 (async () => {
   try {
     await db.authenticate();
