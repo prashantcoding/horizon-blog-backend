@@ -1,14 +1,21 @@
+require('dotenv').config(); // Load .env first
 const { Sequelize } = require('sequelize');
 
-// PostgreSQL connection setup using a Render URL
-const url=process.env.DB_URL
-const db = new Sequelize(url, {
-    dialect: 'postgres', // Set to 'postgres' for PostgreSQL
-    logging: false, 
+const dbUrl = process.env.DB_URL;
+
+if (!dbUrl) {
+    console.error('❌ DB_URL is not set in .env or environment variables');
+    process.exit(1);
+}
+
+const db = new Sequelize(dbUrl, {
+    dialect: 'postgres',
+    protocol: 'postgres',
+    logging: false,
     dialectOptions: {
         ssl: {
-            require: true, // Enforce SSL connection
-            rejectUnauthorized: false // Allow self-signed certificates
+            require: true,
+            rejectUnauthorized: false,
         }
     }
 });
@@ -16,9 +23,9 @@ const db = new Sequelize(url, {
 async function authenticateDB() {
     try {
         await db.authenticate();
-        console.log('Connection has been established successfully.');
+        console.log('✅ Connected to PostgreSQL database successfully.');
     } catch (error) {
-        console.error('Unable to connect to the database:', error.message);
+        console.error('❌ Unable to connect to the database:', error.message);
     }
 }
 
